@@ -1,6 +1,6 @@
 import * as Twilio from 'twilio'
 
-export function sendSMS(phoneNumber: string, message: string) {
+export function sendSMS(phoneNumber: string = process.env.TRIAL_PHONE, message: string) {
   if (!phoneNumber) {
     throw Error('Phone number must be provided')
   }

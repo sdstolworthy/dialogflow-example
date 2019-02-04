@@ -1,43 +1,49 @@
-import * as Express from "express";
-import * as bodyParser from "body-parser";
-import * as dialogflow from "dialogflow";
-import * as uuid from "uuid";
-import { sendSMS } from "./services/messaging";
+import * as Express from 'express';
+import * as bodyParser from 'body-parser';
+import * as dialogflow from 'dialogflow';
+import * as uuid from 'uuid';
+import { sendSMS } from './services/messaging';
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
 
-require('dotenv').config()
+createConnection()
+  .then(async (connection) => {})
+  .catch((error) => console.log(error));
+require('dotenv').config();
 
-const PROJECT_NAME = "solutionreach-appt";
-console.log("starting...");
+const PROJECT_NAME = 'solutionreach-appt';
+console.log('starting...');
 const port = process.env.PORT || 3000;
 
 const app = Express();
 
 app.use(bodyParser.json());
 
-app.get("/", async (_, res) => {
+// sendSMS(process.env.TRIAL_PHONE, 'the server is running')
+
+app.get('/', async (_, res) => {
   try {
     const sample = await runFirstQuestion();
-    // await sendSMS("+16154918300", "test message")
-    //   .then((data: any) => console.log('success', data))
-    //   .catch((error: any) => console.log('error', error));
     res.status(200).send(sample);
   } catch (e) {
-    console.log(e)
+    console.log(e);
     res.status(500).send(e);
   }
 });
 
-app.get("/followUp", async (_, res) => {
-  try {
-    const data = await processResponse();
-    res.status(200).send(data);
-  } catch (e) {
-    res.status(502).send(e);
-  }
-});
+app
+  .use(bodyParser.urlencoded({ extended: false }))
+  .post('/incoming_message', async (req, res) => {
+    const messageText = req.body.Body
+    const textToRespond = await processResponse(messageText);
+    console.log(messageText)
+    sendSMS(process.env.TRIAL_PHONE, textToRespond)
+    res.status(200).send();
+  });
 
-app.use(bodyParser.urlencoded({ extended: false })).post("/incoming_message", async (req, res) => {
-  processResponse(req.body.Body)
+app.post('/recognize_intent', async (req, res) => {
+  const textToRespond = await processResponse(req.body.Body)
+  sendSMS(process.env.TRIAL_PHONE, textToRespond)
   res.status(200).send()
 })
 
@@ -48,25 +54,16 @@ app.listen(port, () => {
 const sesId = uuid.v4();
 
 async function runFirstQuestion(projectId = PROJECT_NAME) {
-  const sessionId = sesId
-  const sessionClient = new dialogflow.SessionsClient();
-  const sessionPath = sessionClient.sessionPath(projectId, sessionId);
 
+  const intentsClient = new dialogflow.IntentsClient();
   const request = {
-    session: sessionPath,
-    queryInput: {
-      event: {
-        name: "appt_reminder",
-        languageCode: "en-us"
-      }
-    }
+    parent: intentsClient.projectAgentPath(projectId),
   };
 
-  const response = await sessionClient.detectIntent(request);
-  return response;
+  console.log('intents', await intentsClient.listIntents(request));
 }
 
-async function processResponse(projectId = PROJECT_NAME) {
+async function processResponse(responseText, projectId = PROJECT_NAME) {
   const sessionId = sesId;
   const sessionClient = new dialogflow.SessionsClient();
   const sessionPath = sessionClient.sessionPath(projectId, sessionId);
@@ -74,10 +71,15 @@ async function processResponse(projectId = PROJECT_NAME) {
     session: sessionPath,
     queryInput: {
       text: {
-        text: "sure",
-        languageCode: "en-US"
-      }
-    }
+        text: responseText,
+        languageCode: 'en-US',
+      },
+    },
   };
-  return sessionClient.detectIntent(request);
+  const intent = await sessionClient.detectIntent(request);
+  if (intent && intent.length > 0) {
+    const firstIntent = intent[0]
+    return firstIntent.queryResult.fulfillmentText
+  }
+  return "something went wrong"
 }
