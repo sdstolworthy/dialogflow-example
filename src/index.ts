@@ -6,9 +6,9 @@ import { sendSMS } from './services/messaging';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 
-createConnection()
-  .then(async (connection) => {})
-  .catch((error) => console.log(error));
+// createConnection()
+//   .then(async (connection) => {})
+//   .catch((error) => console.log(error));
 require('dotenv').config();
 
 const PROJECT_NAME = 'solutionreach-appt';
