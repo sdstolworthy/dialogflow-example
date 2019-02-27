@@ -77,7 +77,7 @@ app
         .toString(),
     });
 
-    sendSMS(process.env.TRIAL_PHONE, textToRespond);
+    sendSMS(fromPhone, textToRespond);
     res.status(200).send();
   });
 
