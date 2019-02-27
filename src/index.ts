@@ -18,7 +18,7 @@ interface Message {
   text: string;
   outbound: boolean;
 }
-const messages: Message[] = [];
+const messages: {[key: string]: Array<Message>} = {};
 
 const app = Express();
 
@@ -39,16 +39,6 @@ app.use(function(req, res: any, next) {
   next();
 });
 
-app
-  .use(bodyParser.urlencoded({ extended: false }))
-  .post('/incoming_message', async (req, res) => {
-    console.log(req.body);
-    const messageText = req.body.Body;
-    const textToRespond = await processResponse(messageText);
-    console.log(messageText);
-    sendSMS(process.env.TRIAL_PHONE, textToRespond);
-    res.status(200).send();
-  });
 // sendSMS(process.env.TRIAL_PHONE, 'the server is running')
 
 app.get('/', async (_, res) => {
@@ -58,6 +48,25 @@ app.get('/', async (_, res) => {
     res.status(500).send(e);
   }
 });
+
+app
+  .use(bodyParser.urlencoded({ extended: false }))
+  .post('/incoming_message', async (req, res) => {
+    const messageText = req.body.Body;
+    const textToRespond = await processResponse(messageText);
+    messages[req.body.Phone].push({
+      text: messageText,
+      outbound: false,
+    });
+
+    messages[req.body.Phone].push({
+      text: textToRespond,
+      outbound: true,
+    });
+    
+    sendSMS(process.env.TRIAL_PHONE, textToRespond);
+    res.status(200).send();
+  });
 
 app.post('/recognize_intent', async (req, res) => {
   const textToRespond = await processResponse(req.body.Body);
@@ -92,14 +101,6 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
   const intent = await sessionClient.detectIntent(request);
   if (intent && intent.length > 0) {
     const firstIntent = intent[0];
-    messages.push({
-      text: responseText,
-      outbound: false,
-    });
-    messages.push({
-      text: firstIntent.queryResult.fulfillmentText,
-      outbound: true,
-    });
     return firstIntent.queryResult.fulfillmentText;
   }
   return 'something went wrong';
