@@ -5,6 +5,7 @@ import * as uuid from 'uuid';
 import { sendSMS } from './services/messaging';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
+import cors from 'cors'
 
 // createConnection()
 //   .then(async (connection) => {})
@@ -24,6 +25,9 @@ const messages: Array<Message> = []
 const app = Express();
 
 app.use(bodyParser.json());
+app.use(cors({
+  origin: false
+}));
 
 // sendSMS(process.env.TRIAL_PHONE, 'the server is running')
 

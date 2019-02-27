@@ -27,11 +27,13 @@
       "typescript": "^3.3.1"
    },
    "dependencies": {
+      "@types/cors": "^2.8.4",
       "@types/dialogflow": "^0.6.5",
       "@types/express": "^4.16.1",
       "@types/node": "^10.12.18",
       "@types/uuid": "^3.4.4",
       "body-parser": "^1.18.3",
+      "cors": "^2.8.5",
       "dialogflow": "^0.8.0",
       "dotenv": "^6.2.0",
       "express": "^4.16.4",
