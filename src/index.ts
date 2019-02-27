@@ -39,18 +39,27 @@ app.use(function(req, res: any, next) {
   next();
 });
 
+app
+  .use(bodyParser.urlencoded({ extended: false }))
+  .post('/incoming_message', async (req, res) => {
+    console.log(req.body);
+    const messageText = req.body.Body;
+    const textToRespond = await processResponse(messageText);
+    console.log(messageText);
+    sendSMS(process.env.TRIAL_PHONE, textToRespond);
+    res.status(200).send();
+  });
 // sendSMS(process.env.TRIAL_PHONE, 'the server is running')
 
 app.get('/', async (_, res) => {
   try {
-    res.status(200).send('I\'m healthy');
+    res.status(200).send("I'm healthy");
   } catch (e) {
     res.status(500).send(e);
   }
 });
 
 app.post('/recognize_intent', async (req, res) => {
-  console.log(req.body)
   const textToRespond = await processResponse(req.body.Body);
   sendSMS(process.env.TRIAL_PHONE, textToRespond);
   res.status(200).send();
