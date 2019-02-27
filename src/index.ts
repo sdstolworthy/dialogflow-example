@@ -54,11 +54,12 @@ app
   .post('/incoming_message', async (req, res) => {
     const messageText = req.body.Body;
     console.log(req.body)
+    const fromPhone = req.body.From
     const textToRespond = await processResponse(messageText);
-    if (!messages[req.body.Phone] || !Array.isArray(messages[req.body.Phone])) {
-      messages[req.body.Phone] = []
+    if (!messages[fromPhone] || !Array.isArray(messages[fromPhone])) {
+      messages[fromPhone] = []
     }
-    messages[req.body.Phone].push({
+    messages[fromPhone].push({
       text: messageText,
       outbound: false,
     });
