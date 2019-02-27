@@ -4,6 +4,7 @@ import * as dialogflow from 'dialogflow';
 import * as uuid from 'uuid';
 import { sendSMS } from './services/messaging';
 import * as twilio from 'twilio';
+import * as moment from 'moment';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import * as cors from 'cors';
@@ -17,8 +18,9 @@ const port = process.env.PORT || 3000;
 interface Message {
   text: string;
   outbound: boolean;
+  time: string;
 }
-const messages: {[key: string]: Array<Message>} = {};
+const messages: { [key: string]: Message[] } = {};
 
 const app = Express();
 
@@ -53,20 +55,26 @@ app
   .use(bodyParser.urlencoded({ extended: false }))
   .post('/incoming_message', async (req, res) => {
     const messageText = req.body.Body;
-    console.log(req.body)
-    const fromPhone = req.body.From
+    console.log(req.body);
+    const fromPhone = req.body.From;
     const textToRespond = await processResponse(messageText);
     if (!messages[fromPhone] || !Array.isArray(messages[fromPhone])) {
-      messages[fromPhone] = []
+      messages[fromPhone] = [];
     }
     messages[fromPhone].push({
       text: messageText,
+      time: moment()
+        .utc()
+        .toString(),
       outbound: false,
     });
 
     messages[fromPhone].push({
       text: textToRespond,
       outbound: true,
+      time: moment()
+        .utc()
+        .toString(),
     });
 
     sendSMS(process.env.TRIAL_PHONE, textToRespond);
