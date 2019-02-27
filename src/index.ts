@@ -53,6 +53,7 @@ app
   .use(bodyParser.urlencoded({ extended: false }))
   .post('/incoming_message', async (req, res) => {
     const messageText = req.body.Body;
+    console.log(req.body)
     const textToRespond = await processResponse(messageText);
     if (!messages[req.body.Phone] || !Array.isArray(messages[req.body.Phone])) {
       messages[req.body.Phone] = []
