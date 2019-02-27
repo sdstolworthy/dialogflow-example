@@ -15,6 +15,12 @@ const PROJECT_NAME = 'solutionreach-appt';
 console.log('starting...');
 const port = process.env.PORT || 3000;
 
+interface Message {
+  text: string,
+  outbound: boolean
+}
+const messages: Array<Message> = []
+
 const app = Express();
 
 app.use(bodyParser.json());
@@ -47,6 +53,10 @@ app.post('/recognize_intent', async (req, res) => {
   res.status(200).send()
 })
 
+app.get('/messages', async (req, res) => {
+  res.status(200).send(messages)
+})
+
 app.listen(port, () => {
   console.log(`Now listening on ${port}`);
 });
@@ -76,9 +86,18 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
       },
     },
   };
+  
   const intent = await sessionClient.detectIntent(request);
   if (intent && intent.length > 0) {
     const firstIntent = intent[0]
+    messages.push({
+      text: responseText,
+      outbound: false
+    })
+    messages.push({
+      text: firstIntent.queryResult.fulfillmentText,
+      outbound: true
+    })
     return firstIntent.queryResult.fulfillmentText
   }
   return "something went wrong"
