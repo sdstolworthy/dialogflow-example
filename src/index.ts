@@ -67,12 +67,14 @@ app
     incomingMessage.text = messageText
     incomingMessage.time = moment().utc().toDate()
     incomingMessage.outbound = false
+    incomingMessage.patronPhone = fromPhone
     incomingMessage.save()
 
     const response = new Message()
     response.text = textToRespond
     response.outbound = true
     response.time = moment().utc().toDate()
+    response.patronPhone = fromPhone
     response.save()
 
     sendSMS(fromPhone, textToRespond);
@@ -88,7 +90,13 @@ app.post('/recognize_intent', async (req, res) => {
 app.get('/messages', async (req, res) => {
   await connection
   const messages = await Message.find()
-  res.status(200).send(messages);
+  const indexedMessages = Object.keys(messages.reduce((prev, curr) => {
+    prev[curr.patronPhone] = []
+    return prev
+  }, {})).forEach(k => {
+    messages[k] = messages.filter(m => m.patronPhone === k)
+  })
+  res.status(200).send(indexedMessages);
 });
 
 app.listen(port, () => {

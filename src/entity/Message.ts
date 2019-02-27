@@ -9,9 +9,12 @@ export class Message extends BaseEntity {
     @Column()
     text: string;
 
-    @Column({type: 'timestamptz'})
+    @Column()
     time: Date;
 
     @Column()
     outbound: boolean;
+
+    @Column()
+    patronPhone: string;
 }
