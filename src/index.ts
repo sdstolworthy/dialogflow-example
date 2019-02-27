@@ -5,7 +5,7 @@ import * as uuid from 'uuid';
 import { sendSMS } from './services/messaging';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
-import cors from 'cors'
+import * as cors from 'cors'
 
 // createConnection()
 //   .then(async (connection) => {})
