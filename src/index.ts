@@ -64,7 +64,7 @@ app
       outbound: false,
     });
 
-    messages[req.body.Phone].push({
+    messages[fromPhone].push({
       text: textToRespond,
       outbound: true,
     });
