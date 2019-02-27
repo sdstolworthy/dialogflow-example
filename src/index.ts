@@ -54,6 +54,9 @@ app
   .post('/incoming_message', async (req, res) => {
     const messageText = req.body.Body;
     const textToRespond = await processResponse(messageText);
+    if (!messages[req.body.Phone] || !Array.isArray(messages[req.body.Phone])) {
+      messages[req.body.Phone] = []
+    }
     messages[req.body.Phone].push({
       text: messageText,
       outbound: false,
@@ -63,7 +66,7 @@ app
       text: textToRespond,
       outbound: true,
     });
-    
+
     sendSMS(process.env.TRIAL_PHONE, textToRespond);
     res.status(200).send();
   });
