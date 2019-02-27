@@ -6,20 +6,25 @@ import { sendSMS } from './services/messaging';
 import * as twilio from 'twilio';
 import * as moment from 'moment';
 import 'reflect-metadata';
-import { createConnection } from 'typeorm';
+import { createConnection, getConnection } from 'typeorm';
 import * as cors from 'cors';
+import { Message } from './entity/Message';
 
 require('dotenv').config();
+
+
+
+const connection = createConnection({
+  type: "sqlite",
+  entities: [ Message],
+  logging: false,
+  database: "../messages.db"
+})
 
 const PROJECT_NAME = 'solutionreach-appt';
 console.log('starting...');
 const port = process.env.PORT || 3000;
 
-interface Message {
-  text: string;
-  outbound: boolean;
-  time: string;
-}
 const messages: { [key: string]: Message[] } = {};
 
 const app = Express();
@@ -55,27 +60,20 @@ app
   .use(bodyParser.urlencoded({ extended: false }))
   .post('/incoming_message', async (req, res) => {
     const messageText = req.body.Body;
-    console.log(req.body);
+    await connection
     const fromPhone = req.body.From;
     const textToRespond = await processResponse(messageText);
-    if (!messages[fromPhone] || !Array.isArray(messages[fromPhone])) {
-      messages[fromPhone] = [];
-    }
-    messages[fromPhone].push({
-      text: messageText,
-      time: moment()
-        .utc()
-        .toString(),
-      outbound: false,
-    });
+    const incomingMessage = new Message()
+    incomingMessage.text = messageText
+    incomingMessage.time = moment().utc().toDate()
+    incomingMessage.outbound = false
+    incomingMessage.save()
 
-    messages[fromPhone].push({
-      text: textToRespond,
-      outbound: true,
-      time: moment()
-        .utc()
-        .toString(),
-    });
+    const response = new Message()
+    response.text = textToRespond
+    response.outbound = true
+    response.time = moment().utc().toDate()
+    response.save()
 
     sendSMS(fromPhone, textToRespond);
     res.status(200).send();
@@ -88,6 +86,8 @@ app.post('/recognize_intent', async (req, res) => {
 });
 
 app.get('/messages', async (req, res) => {
+  await connection
+  const messages = await Message.find()
   res.status(200).send(messages);
 });
 

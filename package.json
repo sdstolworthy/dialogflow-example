@@ -42,6 +42,8 @@
       "mysql": "^2.14.1",
       "pg": "^7.8.0",
       "reflect-metadata": "^0.1.10",
+      "sqlite": "^3.0.2",
+      "sqlite3": "^4.0.6",
       "twilio": "^3.28.1",
       "typeorm": "0.2.12",
       "uuid": "^3.3.2"
