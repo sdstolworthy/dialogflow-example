@@ -16,16 +16,15 @@ require('dotenv').config();
 
 const connection = createConnection({
   type: "sqlite",
-  entities: [ Message],
+  entities: [Message],
   logging: false,
-  database: "../messages.db"
+  database: "../messages.db",
+  synchronize: true
 })
 
 const PROJECT_NAME = 'solutionreach-appt';
 console.log('starting...');
 const port = process.env.PORT || 3000;
-
-const messages: { [key: string]: Message[] } = {};
 
 const app = Express();
 
