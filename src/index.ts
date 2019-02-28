@@ -16,7 +16,7 @@ const connection = createConnection({
   type: 'sqlite',
   entities: [Message],
   logging: false,
-  database: '../messages.db',
+  database: './messages.db',
   synchronize: true,
 });
 
