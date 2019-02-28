@@ -61,7 +61,6 @@ app
     const messageText = req.body.Body;
     await connection;
     const fromPhone = req.body.From;
-    const textToRespond = await processResponse(messageText);
     const incomingMessage = new Message();
     incomingMessage.text = messageText;
     incomingMessage.time = moment()
@@ -70,6 +69,7 @@ app
     incomingMessage.outbound = false;
     incomingMessage.patronPhone = fromPhone;
     incomingMessage.save()
+    const textToRespond = await processResponse(messageText);
 
     const response = new Message();
     response.text = textToRespond;
