@@ -32,7 +32,7 @@ app.use(
     origin: false,
   })
 );
-app.use(function(req, res: any, next) {
+const noCors = function(req, res: any, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
@@ -41,7 +41,8 @@ app.use(function(req, res: any, next) {
     'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json'
   );
   next();
-});
+}
+app.use(noCors);
 
 // sendSMS(process.env.TRIAL_PHONE, 'the server is running')
 
@@ -55,6 +56,7 @@ app.get('/', async (_, res) => {
 
 app
   .use(bodyParser.urlencoded({ extended: false }))
+  .use(noCors)
   .post('/incoming_message', async (req, res) => {
     const messageText = req.body.Body;
     await connection;
