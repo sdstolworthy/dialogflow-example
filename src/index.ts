@@ -136,8 +136,8 @@ function fillSlots(text, parameters) {
   }, text)
 }
 const dataParsingOperations: {[key: string]: (value: any) => string} = {
-  date: (date) => moment(date.stringValue).format('dddd, MMMM D, YYYY'),
-  time: (time) => moment(time.stringValue).format('h:mm a')
+  date: (date) => moment().utc(date.stringValue).format('dddd, MMMM D, YYYY'),
+  time: (time) => moment().utc(time.stringValue).format('h:mm a')
 }
 
 function formatData(key, value) {
