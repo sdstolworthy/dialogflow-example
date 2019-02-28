@@ -126,7 +126,6 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
   if (intent && intent.length > 0) {
     const firstIntent = intent[0];
 
-    console.log(firstIntent.queryResult.parameters.fields);
     const fulfillmentText = firstIntent.queryResult.fulfillmentText;
     const parsedText = fillSlots(
       fulfillmentText,
@@ -147,12 +146,12 @@ function fillSlots(text, parameters) {
 }
 const dataParsingOperations: { [key: string]: (value: any) => string } = {
   date: (date) => {
-    const resp = moment.utc(date).local().format('dddd, MMMM D, YYYY');
+    const resp = parseDate(date).format('dddd, MMMM DD, YYYY');
     console.log('date', date, resp);
     return resp;
   },
   time: (time) => {
-    const resp = moment.utc(time).local().format('h:mm a');
+    const resp = parseDate(date).format('h:mm a');
     console.log('time', time, resp)
     return resp
   },
@@ -160,4 +159,8 @@ const dataParsingOperations: { [key: string]: (value: any) => string } = {
 
 function formatData(key, value) {
   return dataParsingOperations[key](value);
+}
+
+function parseDate(dateString) {
+  return moment(dateString, "YYYY-MM-DDTkk:mm:ssZ")
 }
