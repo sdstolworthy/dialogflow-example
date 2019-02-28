@@ -131,10 +131,8 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
 }
 
 function fillSlots(text, parameters) {
-  return Object.keys(parameters).reduce((_, curr) => {
-    console.log(text)
-    console.log(curr)
-    return text.replace(`#${curr}`, formatData(curr, parameters[curr]))
+  return Object.keys(parameters).reduce((prev, curr) => {
+    return prev.replace(`#${curr}`, formatData(curr, parameters[curr]))
   }, text)
 }
 const dataParsingOperations: {[key: string]: (value: any) => string} = {
