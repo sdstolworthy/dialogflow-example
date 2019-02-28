@@ -67,7 +67,7 @@ app
       .toDate();
     incomingMessage.outbound = false;
     incomingMessage.patronPhone = fromPhone;
-    incomingMessage.save().then(data => console.log('saved', data)).catch(e => console.log(e));
+    incomingMessage.save()
 
     const response = new Message();
     response.text = textToRespond;
@@ -92,7 +92,6 @@ app.get('/messages', async (req, res) => {
   console.log('start messages')
   await connection;
   const messages = await Message.find();
-  console.log(messages)
   const indexedMessages = {}
   Object.keys(
     messages.reduce((prev, curr) => {
