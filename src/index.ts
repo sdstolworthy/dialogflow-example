@@ -89,6 +89,7 @@ app.post('/recognize_intent', async (req, res) => {
 });
 
 app.get('/messages', async (req, res) => {
+  console.log('start messages')
   await connection;
   const messages = await Message.find();
   const indexedMessages = Object.keys(
@@ -145,22 +146,14 @@ function fillSlots(text, parameters) {
   }, text);
 }
 const dataParsingOperations: { [key: string]: (value: any) => string } = {
-  date: (date) => {
-    const resp = parseDate(date).format('dddd, MMMM DD, YYYY');
-    console.log('date', date, resp);
-    return resp;
-  },
-  time: (time) => {
-    const resp = parseDate(time).format('h:mm a');
-    console.log('time', time, resp)
-    return resp
-  },
+  date: (date) => parseDate(date).format('dddd, MMMM D, YYYY'),
+  time: (time) => parseDate(time).format('h:mm a'),
 };
 
 function formatData(key, value) {
   return dataParsingOperations[key](value);
 }
 
-function parseDate(dateString) {
-  return moment.parseZone(dateString, "YYYY-MM-DDTkk:mm:ssZ").local(true)
+function parseDate(dateString, format = "YYYY-MM-DDTkk:mm:ssZ") {
+  return moment.parseZone(dateString, format).local(true)
 }
