@@ -121,6 +121,7 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
   const intent = await sessionClient.detectIntent(request);
   if (intent && intent.length > 0) {
     const firstIntent = intent[0];
+    console.log(firstIntent.queryResult)
     return firstIntent.queryResult.fulfillmentText;
   }
   return 'something went wrong';
