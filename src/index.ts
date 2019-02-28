@@ -92,6 +92,7 @@ app.get('/messages', async (req, res) => {
   console.log('start messages')
   await connection;
   const messages = await Message.find();
+  console.log(messages)
   const indexedMessages = Object.keys(
     messages.reduce((prev, curr) => {
       prev[curr.patronPhone] = [];
