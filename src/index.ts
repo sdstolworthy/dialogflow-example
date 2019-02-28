@@ -139,20 +139,23 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
 
 function fillSlots(text, parameters) {
   return Object.keys(parameters).reduce((prev, curr) => {
-    return prev.replace(`#${curr}`, formatData(curr, parameters[curr][parameters[curr]['kind']]));
+    return prev.replace(
+      `#${curr}`,
+      formatData(curr, parameters[curr][parameters[curr]['kind']])
+    );
   }, text);
 }
 const dataParsingOperations: { [key: string]: (value: any) => string } = {
   date: (date) => {
-    const resp =  moment(date)
-    .format('dddd, MMMM D, YYYY');
-    console.log(date, resp)
+    const resp = moment(date).format('dddd, MMMM D, YYYY');
+    console.log('date', date, resp);
+    return resp;
+  },
+  time: (time) => {
+    const resp = moment(time).format('h:mm a');
+    console.log('time', time, resp)
     return resp
   },
-  time: (time) =>
-    moment()
-      .utc(time)
-      .format('h:mm a'),
 };
 
 function formatData(key, value) {
