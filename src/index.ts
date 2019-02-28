@@ -147,12 +147,12 @@ function fillSlots(text, parameters) {
 }
 const dataParsingOperations: { [key: string]: (value: any) => string } = {
   date: (date) => {
-    const resp = moment(date).format('dddd, MMMM D, YYYY');
+    const resp = moment.utc(date).local().format('dddd, MMMM D, YYYY');
     console.log('date', date, resp);
     return resp;
   },
   time: (time) => {
-    const resp = moment(new Date(time)).local(true).format('h:mm a');
+    const resp = moment.utc(time).local().format('h:mm a');
     console.log('time', time, resp)
     return resp
   },
