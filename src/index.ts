@@ -152,7 +152,7 @@ const dataParsingOperations: { [key: string]: (value: any) => string } = {
     return resp;
   },
   time: (time) => {
-    const resp = moment(time).local(true).format('h:mm a');
+    const resp = moment(new Date(time)).local(true).format('h:mm a');
     console.log('time', time, resp)
     return resp
   },
