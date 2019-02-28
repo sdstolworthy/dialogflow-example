@@ -162,5 +162,5 @@ function formatData(key, value) {
 }
 
 function parseDate(dateString) {
-  return moment.utc(dateString, "YYYY-MM-DDTkk:mm:ssZ")
+  return moment.parseZone(dateString, "YYYY-MM-DDTkk:mm:ssZ").local(true)
 }
