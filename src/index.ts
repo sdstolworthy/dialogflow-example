@@ -151,7 +151,7 @@ const dataParsingOperations: { [key: string]: (value: any) => string } = {
     return resp;
   },
   time: (time) => {
-    const resp = parseDate(date).format('h:mm a');
+    const resp = parseDate(time).format('h:mm a');
     console.log('time', time, resp)
     return resp
   },
