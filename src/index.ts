@@ -91,7 +91,6 @@ app.post('/recognize_intent', async (req, res) => {
 });
 
 app.get('/messages', async (req, res) => {
-  console.log('start messages')
   await connection;
   const messages = await Message.find();
   const indexedMessages = {}
