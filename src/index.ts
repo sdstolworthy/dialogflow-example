@@ -12,15 +12,13 @@ import { Message } from './entity/Message';
 
 require('dotenv').config();
 
-
-
 const connection = createConnection({
-  type: "sqlite",
+  type: 'sqlite',
   entities: [Message],
   logging: false,
-  database: "../messages.db",
-  synchronize: true
-})
+  database: '../messages.db',
+  synchronize: true,
+});
 
 const PROJECT_NAME = 'solutionreach-appt';
 console.log('starting...');
@@ -59,22 +57,26 @@ app
   .use(bodyParser.urlencoded({ extended: false }))
   .post('/incoming_message', async (req, res) => {
     const messageText = req.body.Body;
-    await connection
+    await connection;
     const fromPhone = req.body.From;
     const textToRespond = await processResponse(messageText);
-    const incomingMessage = new Message()
-    incomingMessage.text = messageText
-    incomingMessage.time = moment().utc().toDate()
-    incomingMessage.outbound = false
-    incomingMessage.patronPhone = fromPhone
-    incomingMessage.save()
+    const incomingMessage = new Message();
+    incomingMessage.text = messageText;
+    incomingMessage.time = moment()
+      .utc()
+      .toDate();
+    incomingMessage.outbound = false;
+    incomingMessage.patronPhone = fromPhone;
+    incomingMessage.save();
 
-    const response = new Message()
-    response.text = textToRespond
-    response.outbound = true
-    response.time = moment().utc().toDate()
-    response.patronPhone = fromPhone
-    response.save()
+    const response = new Message();
+    response.text = textToRespond;
+    response.outbound = true;
+    response.time = moment()
+      .utc()
+      .toDate();
+    response.patronPhone = fromPhone;
+    response.save();
 
     sendSMS(fromPhone, textToRespond);
     res.status(200).send();
@@ -87,14 +89,16 @@ app.post('/recognize_intent', async (req, res) => {
 });
 
 app.get('/messages', async (req, res) => {
-  await connection
-  const messages = await Message.find()
-  const indexedMessages = Object.keys(messages.reduce((prev, curr) => {
-    prev[curr.patronPhone] = []
-    return prev
-  }, {})).forEach(k => {
-    messages[k] = messages.filter(m => m.patronPhone === k)
-  })
+  await connection;
+  const messages = await Message.find();
+  const indexedMessages = Object.keys(
+    messages.reduce((prev, curr) => {
+      prev[curr.patronPhone] = [];
+      return prev;
+    }, {})
+  ).forEach((k) => {
+    messages[k] = messages.filter((m) => m.patronPhone === k);
+  });
   res.status(200).send(indexedMessages);
 });
 
@@ -121,10 +125,13 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
   const intent = await sessionClient.detectIntent(request);
   if (intent && intent.length > 0) {
     const firstIntent = intent[0];
-    
-    console.log(firstIntent.queryResult.parameters.fields)
-    const fulfillmentText = firstIntent.queryResult.fulfillmentText
-    const parsedText = fillSlots(fulfillmentText, firstIntent.queryResult.parameters.fields)
+
+    console.log(firstIntent.queryResult.parameters.fields);
+    const fulfillmentText = firstIntent.queryResult.fulfillmentText;
+    const parsedText = fillSlots(
+      fulfillmentText,
+      firstIntent.queryResult.parameters.fields
+    );
     return parsedText;
   }
   return 'something went wrong';
@@ -132,14 +139,22 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
 
 function fillSlots(text, parameters) {
   return Object.keys(parameters).reduce((prev, curr) => {
-    return prev.replace(`#${curr}`, formatData(curr, parameters[curr]))
-  }, text)
+    return prev.replace(`#${curr}`, formatData(curr, parameters[curr][parameters[curr]['kind']]));
+  }, text);
 }
-const dataParsingOperations: {[key: string]: (value: any) => string} = {
-  date: (date) => moment().utc(date.stringValue).format('dddd, MMMM D, YYYY'),
-  time: (time) => moment().utc(time.stringValue).format('h:mm a')
-}
+const dataParsingOperations: { [key: string]: (value: any) => string } = {
+  date: (date) => {
+    const resp =  moment(date)
+    .format('dddd, MMMM D, YYYY');
+    console.log(date, resp)
+    return resp
+  },
+  time: (time) =>
+    moment()
+      .utc(time)
+      .format('h:mm a'),
+};
 
 function formatData(key, value) {
-  return dataParsingOperations[key](value)
+  return dataParsingOperations[key](value);
 }
