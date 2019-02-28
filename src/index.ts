@@ -132,6 +132,7 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
 
 function fillSlots(text, parameters) {
   return Object.keys(parameters).reduce((_, curr) => {
+    console.log(text)
     console.log(curr)
     return text.replace(`#${curr}`, formatData(curr, parameters[curr]))
   }, text)
