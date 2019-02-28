@@ -121,8 +121,25 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
   const intent = await sessionClient.detectIntent(request);
   if (intent && intent.length > 0) {
     const firstIntent = intent[0];
-    console.log(firstIntent.queryResult)
-    return firstIntent.queryResult.fulfillmentText;
+    
+    console.log(firstIntent.queryResult.parameters.fields)
+    const fulfillmentText = firstIntent.queryResult.fulfillmentText
+    const parsedText = fillSlots(fulfillmentText, firstIntent.queryResult.parameters.fields)
+    return parsedText;
   }
   return 'something went wrong';
+}
+
+function fillSlots(text, parameters) {
+  return Object.keys(parameters).reduce((_, curr) => {
+    return text.replace(`#${curr}`, formatData(curr, parameters[curr]))
+  }, text)
+}
+const dataParsingOperations: {[key: string]: (value: any) => string} = {
+  date: (date) => moment(date).format('dddd, MMMM D, YYYY'),
+  time: (time) => moment(time).format('h:mm a')
+}
+
+function formatData(key, value) {
+  return dataParsingOperations[key](value)
 }
