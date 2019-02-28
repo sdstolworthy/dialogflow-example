@@ -93,13 +93,14 @@ app.get('/messages', async (req, res) => {
   await connection;
   const messages = await Message.find();
   console.log(messages)
-  const indexedMessages = Object.keys(
+  const indexedMessages = {}
+  Object.keys(
     messages.reduce((prev, curr) => {
       prev[curr.patronPhone] = [];
       return prev;
     }, {})
   ).forEach((k) => {
-    messages[k] = messages.filter((m) => m.patronPhone === k);
+    indexedMessages[k] = messages.filter((m) => m.patronPhone === k);
   });
   res.status(200).send(indexedMessages);
 });
