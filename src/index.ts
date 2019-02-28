@@ -67,7 +67,7 @@ app
       .toDate();
     incomingMessage.outbound = false;
     incomingMessage.patronPhone = fromPhone;
-    incomingMessage.save();
+    incomingMessage.save().then(data => console.log('saved', data)).catch(e => console.log(e));
 
     const response = new Message();
     response.text = textToRespond;
