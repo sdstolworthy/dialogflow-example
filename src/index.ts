@@ -153,7 +153,9 @@ const dataParsingOperations: { [key: string]: (value: any) => string } = {
 };
 
 function formatData(key, value) {
+try {
   return dataParsingOperations[key](value);
+  } catch(e) {return value}
 }
 
 function parseDate(dateString, format = "YYYY-MM-DDTkk:mm:ssZ") {
