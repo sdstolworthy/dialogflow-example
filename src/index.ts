@@ -11,7 +11,7 @@ import * as cors from 'cors';
 import { Message } from './entity/Message';
 
 require('dotenv').config();
-
+const SAMPLE_MEDIA = "https://dj9f81sjzts54.cloudfront.net/profile_maps/37086/static_map_fe6831b945e88139741de0d92152ceff.png"
 const connection = createConnection({
   type: 'sqlite',
   entities: [Message],
@@ -32,7 +32,7 @@ app.use(
     origin: false,
   })
 );
-const noCors = function(req, res: any, next) {
+const noCors = function (req, res: any, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
@@ -62,33 +62,21 @@ app
     await connection;
     const fromPhone = req.body.From;
     const incomingMessage = new Message();
+
     incomingMessage.text = messageText;
     incomingMessage.time = moment()
       .utc()
       .toDate();
     incomingMessage.outbound = false;
     incomingMessage.patronPhone = fromPhone;
-    incomingMessage.save()
-    const textToRespond = await processResponse(messageText);
+    incomingMessage.save();
+    const response = await expandResponse(messageText, fromPhone);
 
-    const response = new Message();
-    response.text = textToRespond;
-    response.outbound = true;
-    response.time = moment()
-      .utc()
-      .toDate();
-    response.patronPhone = fromPhone;
     response.save();
 
-    sendSMS(fromPhone, textToRespond);
+    sendSMS(fromPhone, response);
     res.status(200).send();
   });
-
-app.post('/recognize_intent', async (req, res) => {
-  const textToRespond = await processResponse(req.body.Body);
-  sendSMS(process.env.TRIAL_PHONE, textToRespond);
-  res.status(200).send();
-});
 
 app.get('/messages', async (req, res) => {
   await connection;
@@ -111,7 +99,7 @@ app.listen(port, () => {
 
 const sesId = uuid.v4();
 
-async function processResponse(responseText, projectId = PROJECT_NAME) {
+async function expandResponse(responseText, fromPhone, projectId = PROJECT_NAME): Message {
   const sessionId = sesId;
   const sessionClient = new dialogflow.SessionsClient();
   const sessionPath = sessionClient.sessionPath(projectId, sessionId);
@@ -134,9 +122,31 @@ async function processResponse(responseText, projectId = PROJECT_NAME) {
       fulfillmentText,
       firstIntent.queryResult.parameters.fields
     );
-    return parsedText;
+    let response = new Message();
+    response.text = parsedText;
+    response.outbound = true;
+    response.time = moment()
+      .utc()
+      .toDate();
+    response.patronPhone = fromPhone;
+    response = intentSpecificExpansion(response, 'whereAreYouLocated') // TODO: make dynamic
+    return response;
   }
-  return 'something went wrong';
+  throw new Error('something went wrong while expanding the response');
+}
+
+function intentSpecificExpansion(message: Message, intent: string): Message {
+  if (intent in intentLibrary) {
+    return intentLibrary[intent](message)
+  }
+  return message;
+}
+
+const intentLibrary: { [key: string]: (message: Message) => Message } = {
+  whereAreYouLocated: (message) => {
+    message.mediaUrl = SAMPLE_MEDIA;
+    return message;
+  }
 }
 
 function fillSlots(text, parameters) {
@@ -153,9 +163,9 @@ const dataParsingOperations: { [key: string]: (value: any) => string } = {
 };
 
 function formatData(key, value) {
-try {
-  return dataParsingOperations[key](value);
-  } catch(e) {return value}
+  try {
+    return dataParsingOperations[key](value);
+  } catch (e) { return value }
 }
 
 function parseDate(dateString, format = "YYYY-MM-DDTkk:mm:ssZ") {

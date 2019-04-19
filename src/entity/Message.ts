@@ -17,4 +17,7 @@ export class Message extends BaseEntity {
 
     @Column()
     patronPhone: string;
+
+    @Column()
+    mediaUrl: string;
 }
