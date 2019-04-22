@@ -65,7 +65,7 @@ app
     message.outbound = true
     message.time = new Date()
     message.save()
-    sendSMS(recipient, messageText)
+    sendSMS(recipient, message)
   })
 
 app
