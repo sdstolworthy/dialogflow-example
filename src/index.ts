@@ -57,6 +57,19 @@ app.get("/", async (_, res) => {
 app
   .use(bodyParser.urlencoded({ extended: false }))
   .use(noCors)
+  .post("/sendMessage", async (req, res) => {
+    const { messageText, recipient } = req.body
+    const message = new Message()
+    message.patronPhone = recipient
+    message.text = messageText
+    message.outbound = true
+    message.save()
+    sendSMS(recipient, messageText)
+  })
+
+app
+  .use(bodyParser.urlencoded({ extended: false }))
+  .use(noCors)
   .post("/incoming_message", async (req, res) => {
     const messageText = req.body.Body
     await connection
