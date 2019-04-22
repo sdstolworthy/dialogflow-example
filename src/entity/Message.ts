@@ -1,23 +1,22 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm"
 
 @Entity()
 export class Message extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number
 
-    @PrimaryGeneratedColumn()
-    id: number;
+  @Column()
+  text: string
 
-    @Column()
-    text: string;
+  @Column()
+  time: Date
 
-    @Column()
-    time: Date;
+  @Column()
+  outbound: boolean
 
-    @Column()
-    outbound: boolean;
+  @Column()
+  patronPhone: string
 
-    @Column()
-    patronPhone: string;
-
-    @Column()
-    mediaUrl: string;
+  @Column({ nullable: true })
+  mediaUrl: string
 }
