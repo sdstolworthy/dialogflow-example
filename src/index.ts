@@ -63,6 +63,7 @@ app
     message.patronPhone = recipient
     message.text = messageText
     message.outbound = true
+    message.time = new Date()
     message.save()
     sendSMS(recipient, messageText)
   })
