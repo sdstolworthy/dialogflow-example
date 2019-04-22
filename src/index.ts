@@ -118,7 +118,7 @@ async function expandResponse(
   }
 
   const intent = await sessionClient.detectIntent(request)
-  console.log(intent)
+  console.log(JSON.stringify(intent, null, 2))
   if (intent && intent.length > 0) {
     const firstIntent = intent[0]
 
