@@ -11,7 +11,7 @@ import { Message } from "./entity/Message"
 
 require("dotenv").config()
 const SAMPLE_MEDIA =
-  "https://dj9f81sjzts54.cloudfront.net/profile_maps/37086/static_map_fe6831b945e88139741de0d92152ceff.png"
+  "https://lh3.googleusercontent.com/WbUXW7uW-jaMMvDTvgGYWjhVYJYNBjCOEhxRCj1GsfZaq1R7rmOpxKMuYHAa3q99t0kjSE7_5VFK78HzrAPnSw1tlgOzkmGdcez5iPElNVwN-hD1sE88-eak1uMqh6EwG7DkcztzNpb1E_urNQV_ZAmczs4tBCCurn4X0lLmKOlC-LEcXUN9BDaYDvvDsQYC2UkISP_sIKvwosKidw9xFdUDn10t3HEl6enAdlF0LMZQSNApz8gpquDLPawHAoXsVA_o7-cBGg94KuOeB3afTfGad9nOilk7KzJDXQSnb7iCsBk5HKxEjNAUEGnbOicL3cbwm1qyhk4_RsdqBzdAcJ7pHALijnNPWBYG2YkCHdUsYr5crFb96em5g_6zeYZiR8VKpkvBPrPJ9Opsr6glu4WkDWIK9nwjzei2oTDvLFhyzNQL8bVInP0naiD7ThNTzGlX9DV_Mc8KddFSKoUOAo2K5jasbt4CfCjBzHVmx0Za54Oq0rXZ4QmzTLdvljCiAbhunO5ASniJXvPt60ilob3OYif1FcIHiO8DzusGSkeN_eUG_vJqF_X_8I6JL-h3JIggtVab_fDSlpCpnQAkL8SFrIxyJFKfDqLRbEQ=w3360-h1832"
 const connection = createConnection({
   type: "sqlite",
   entities: [Message],
@@ -118,7 +118,7 @@ async function expandResponse(
   }
 
   const intent = await sessionClient.detectIntent(request)
-  console.log(intent)
+  console.log(JSON.stringify(intent, null, 2))
   if (intent && intent.length > 0) {
     const firstIntent = intent[0]
 
@@ -134,7 +134,12 @@ async function expandResponse(
       .utc()
       .toDate()
     response.patronPhone = fromPhone
-    response = intentSpecificExpansion(response, "whereAreYouLocated") // TODO: make dynamic
+    if ("intent" in firstIntent.queryResult) {
+      response = intentSpecificExpansion(
+        response,
+        firstIntent.queryResult.intent.name
+      ) // TODO: make dynamic
+    }
     return response
   }
   throw new Error("something went wrong while expanding the response")
@@ -148,7 +153,7 @@ function intentSpecificExpansion(message: Message, intent: string): Message {
 }
 
 const intentLibrary: { [key: string]: (message: Message) => Message } = {
-  whereAreYouLocated: message => {
+  "projects/solutionreach-appt-dev/agent/intents/29485fe8-4fb3-4d51-9e63-46ed99ca41f0": message => {
     message.mediaUrl = SAMPLE_MEDIA
     return message
   }
