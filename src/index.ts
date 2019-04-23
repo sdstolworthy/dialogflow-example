@@ -109,6 +109,7 @@ app.get("/messages", async (req, res) => {
       return prev
     }, {})
   ).forEach(k => {
+    console.log(k)
     indexedMessages[k] = messages.filter(m => m.patronPhone === k)
   })
   res.status(200).send(indexedMessages)
