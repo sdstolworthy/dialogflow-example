@@ -2,6 +2,7 @@ import * as Express from "express"
 import * as bodyParser from "body-parser"
 import * as dialogflow from "dialogflow"
 import * as uuid from "uuid"
+import PhoneNumber from "awesome-phonenumber"
 import { sendSMS } from "./services/messaging"
 import * as moment from "moment"
 import "reflect-metadata"
@@ -99,7 +100,13 @@ app.get("/messages", async (req, res) => {
   const indexedMessages = {}
   Object.keys(
     messages.reduce((prev, curr) => {
-      prev[curr.patronPhone] = []
+      prev[
+        new PhoneNumber(curr.patronPhone)
+          .getNumber("national")
+          .split("")
+          .splice(2, 4, ...new Array(4).fill("*"))
+          .join("")
+      ] = []
       return prev
     }, {})
   ).forEach(k => {

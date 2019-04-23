@@ -32,6 +32,7 @@
       "@types/express": "^4.16.1",
       "@types/node": "^10.12.18",
       "@types/uuid": "^3.4.4",
+      "awesome-phonenumber": "^2.9.0",
       "body-parser": "^1.18.3",
       "cors": "^2.8.5",
       "dialogflow": "^0.8.0",
