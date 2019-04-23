@@ -100,11 +100,11 @@ app.get("/messages", async (req, res) => {
   const indexedMessages = {}
   Object.keys(
     messages.reduce((prev, curr) => {
-      const pn = new PhoneNumber(curr.patronPhone).getNumber("national")
-      const censoredNumber = pn
+      const pn = new PhoneNumber(curr.patronPhone)
+        .getNumber("national")
         .split("")
-        .splice(3, 5, ..."*) **".split(""))
-        .join("")
+      pn.splice(3, 5, ..."*) **".split(""))
+      const censoredNumber = pn.join("")
       prev[censoredNumber] = []
       return prev
     }, {})
