@@ -101,8 +101,11 @@ app.get("/messages", async (req, res) => {
   Object.keys(
     messages.reduce((prev, curr) => {
       const pn = new PhoneNumber(curr.patronPhone).getNumber("national")
-      console.log(pn)
-      prev[pn] = []
+      const censoredNumber = pn
+        .split("")
+        .splice(3, 5, ..."*) **".split(""))
+        .join("")
+      prev[censoredNumber] = []
       return prev
     }, {})
   ).forEach(k => {
