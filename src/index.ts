@@ -100,17 +100,14 @@ app.get("/messages", async (req, res) => {
   const indexedMessages = {}
   Object.keys(
     messages.reduce((prev, curr) => {
-      const pn = new PhoneNumber(curr.patronPhone)
-        .getNumber("national")
-        .split("")
-      pn.splice(3, 5, ..."*) **".split(""))
-      const censoredNumber = pn.join("")
-      prev[censoredNumber] = []
+      prev[curr.patronPhone] = []
       return prev
     }, {})
   ).forEach(k => {
-    console.log(k)
-    indexedMessages[k] = messages.filter(m => m.patronPhone === k)
+    const pn = new PhoneNumber(k).getNumber("national").split("")
+    pn.splice(3, 5, ..."*) **".split(""))
+    const censoredNumber = pn.join("")
+    indexedMessages[censoredNumber] = messages.filter(m => m.patronPhone === k)
   })
   res.status(200).send(indexedMessages)
 })
