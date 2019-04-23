@@ -100,11 +100,7 @@ app.get("/messages", async (req, res) => {
   const indexedMessages = {}
   Object.keys(
     messages.reduce((prev, curr) => {
-      const pn = new PhoneNumber(curr.patronPhone)
-        .getNumber("national")
-        .split("")
-        .splice(2, 4, ...new Array(4).fill("*"))
-        .join("")
+      const pn = new PhoneNumber(curr.patronPhone).getNumber("national")
       console.log(pn)
       prev[pn] = []
       return prev
